@@ -1,0 +1,358 @@
+<?php
+$errorMessages = ""; // Initialize an empty string for error messages
+
+if ($_SERVER["REQUEST_METHOD"] == "POST") {
+    if (empty($_POST["username"])) {
+        $errorMessages .= "Name is required<br>";
+    }
+    if (strlen($_POST["password"]) < 8) {
+        $errorMessages .= "Password must be at least 8 characters<br>";
+    }
+    if (!preg_match("/[a-z]/i", $_POST["password"])) {
+        $errorMessages .= "Must contain at least one letter<br>";
+    }
+    if (!preg_match("/[A-Z]/", $_POST["password"])) {
+        $errorMessages .= "Must contain at least one capital letter<br>";
+    }
+    if (!preg_match("/[0-9]/", $_POST["password"])) {
+        $errorMessages .= "Must contain at least one number<br>";
+    }
+    if ($_POST["password"] !== $_POST["password_confirmation"]) {
+        $errorMessages .= "Password must match<br>";
+    }
+
+    // Validate and process image upload
+    $uploadDir = 'upload/';  // Directory to save uploaded images
+
+    if (!empty($_FILES['image']['name'])) {
+        $uploadFile = $uploadDir . basename($_FILES['image']['name']);
+
+        // Check if the file is an image
+        $imageFileType = strtolower(pathinfo($uploadFile, PATHINFO_EXTENSION));
+        $allowedExtensions = array('jpg', 'jpeg', 'png', 'gif');
+
+        if (!in_array($imageFileType, $allowedExtensions)) {
+            $errorMessages .= "Invalid file format. Only JPG, JPEG, PNG, and GIF files are allowed.<br>";
+        }
+
+        // Move the uploaded file to the specified directory
+        if (!move_uploaded_file($_FILES['image']['tmp_name'], $uploadFile)) {
+            $errorMessages .= "Error uploading image.<br>";
+        }
+    } else {
+        $errorMessages .= "No image uploaded.<br>";
+    }
+
+    if (empty($errorMessages)) {
+        // No errors, proceed with database insertion
+        $password_hash = password_hash($_POST["password"], PASSWORD_DEFAULT);
+
+        $mysqli = require __DIR__ . "/datas.php";
+
+        $imagePath = $uploadDir . basename($_FILES['image']['name']);
+
+        $sql = "INSERT INTO user (username, password_hash, image)
+                VALUES (?, ?, ?)";
+
+        $stmt = $mysqli->stmt_init();
+
+        if (!$stmt->prepare($sql)) {
+            $errorMessages = "SQL error: " . $mysqli->error;
+        } else {
+            // Use bind_param to bind parameters, including the image filename
+            $stmt->bind_param("sss",
+                $_POST["username"],
+                $password_hash,
+                $imagePath
+            );
+
+            if ($stmt->execute()) {
+                // Display success message or redirect to success page if needed
+                echo "Registration successful!";
+            } else {
+                if ($mysqli->errno === 1062) {
+                    $errorMessages = "Username already taken";
+                } else {
+                    $errorMessages = $mysqli->error . " " . $mysqli->errno;
+                }
+            }
+        }
+    }
+}
+?>
+<!DOCTYPE html>
+<html>
+<head>
+<title>Create an account</title>
+	<!-- This is for the logo seen above site-->
+	<link rel="icon" href="static/phiwheel.png" type="image/x-icon">
+    <link rel="shortcut icon" href="static/phiwheel.png" type="image/x-icon">  
+<style> 
+*{
+	margin: 0;
+	padding: 0;
+	box-sizing: border-box;
+	font-family: 'Poppins', sans-serif;
+}
+body{
+	display: flex;
+	justify-content: center;
+	align-items: center;
+	min-height: 100vh;
+	background: #081b29;
+	overflow: hidden;
+}
+.wrapper{
+	position: relative;
+	width: 750px;
+	height: 450px;
+	background: transparent;
+	border: 2px solid #0ef;
+	overflow: hidden;
+	box-shadow: 0 0 15px #0ef;
+}
+.wrapper .form-box{
+	position: absolute;
+	top: 0;
+	width: 50%;
+	height: 100%; 
+	display: flex;
+	flex-direction: column;
+	justify-content: center;
+}
+.form-box h2{
+	font-size: 32px;
+	color: #ffff;
+	text-align: center;
+}
+.form-box .input-box{
+	position: relative;
+	width: 100%;
+	height: 50px; 
+	margin: 25px 0;
+}
+.input-box input{
+	position: absolute;
+	width: 100%;
+	height: 100%;
+	background: transparent;
+	border: none;
+	outline: none;
+	border-bottom: 2px solid #fff;
+	transition: 0.5s;
+	font-size: 16px;
+	color: #fff;
+	font-weight: 500;
+	padding-right: 23px;
+}
+.input-box label{
+	position: absolute;
+	top: 50%;
+	left: 0;
+	transform: translateY(-50%);
+	font-size: 16px;
+	color: #fff;
+	pointer-events: none;
+	transition: 0.5s;
+}
+.input-box img{
+	position: absolute;
+	top: 50%;
+	right: 0;
+	transform: translateY(-50%);
+	color: #fff;
+	font-size: 18px;
+	border-radius: 50px;
+}
+.btn{
+	position: relative;
+	width: 100%;
+	height: 45px;
+	background: transparent;
+	border: 2px solid #0ef;
+	outline: none;
+	border-radius: 40px;
+	cursor: pointer;
+	font-size: 16px;
+	color: #fff;
+	z-index: 1;
+	font-weight: 600;
+	overflow: hidden;
+}
+.btn::before{
+	content: '';
+	position: absolute;
+	top: -110%;
+	left: 0;
+	width: 100%;
+	height: 300%;
+	background: linear-gradient(#081b29, #0ef, #081b29, #0ef);
+	z-index: -1;
+	transition: 0.5s;
+}
+.btn:hover::before{
+	top: 0;
+}
+.form-box .logreg-link{
+	font-size: 14.5px;
+	color: #fff;
+	text-align: center;
+	margin: 20px 0 10px;
+}
+.logreg-link p a{
+	color: #0ef;
+	text-decoration: none;
+	font-weight: 600;
+}
+.logreg-link p a:hover{
+	text-decoration: underline;
+}
+.wrapper .form-box{
+	right: 0;
+	padding: 0 40px 0 60px; 
+}
+.input-box input:focus~label,
+.input-box input:valid~label{
+	top: -5px;
+	color: #0ef;
+}
+.input-box input:focus,
+.input-box input:valid{
+	border-bottom-color: #0ef;
+} 
+.wrapper .info-text{
+	position: absolute;
+	top: 0;
+	width: 50%;
+	height: 100%; 
+	display: flex;
+	flex-direction: column;
+	justify-content: center;
+}
+.wrapper .info-text.login{
+	left: 0;
+	text-align: left;
+	padding: 0 150px 60px 40px; 
+}
+.info-text h2{
+	font-size: 36px;
+	color: #fff;
+	line-height: 1.3;
+	text-transform: uppercase;
+}
+.info-text p{
+	font-size: 16px;
+	color: #fff;
+}
+.wrapper .bg-animate{
+	position: absolute;
+	top: -4px;
+	right: 0;
+	width: 850px;
+	height: 600px;
+	background: linear-gradient(45deg, #081b29, #0ef); 
+	transform: rotate(0) skewY(0); 
+	transform-origin: bottom right;
+	border-bottom: 3px solid #0ef; 
+}
+.wrapper .bg-animate2{
+	position: absolute;
+	top: 100%;
+	left: 250px;
+	width: 850px;
+	height: 700px;
+	background: #081b29;
+	transform: rotate(-11deg) skewY(-41deg); 
+	transform-origin: bottom left;
+	border-top: 3px solid #0ef; 
+}
+
+.loader{
+	position: absolute;
+	z-index: 4000;
+	top: 0;
+	left: 0;
+	height: 100%;
+	width: 100%;
+	display: flex;
+	justify-content: center;
+	align-items: center;
+	background: #fff;
+}
+.loader .wd{
+	position: absolute;
+	font-size: 3em;
+	left: 27%;
+	top: 59%;
+	font-family: consolas;
+}
+.nonev{
+	animation: vanish .2s forwards;
+}
+@keyframes vanish{
+	100%{
+		visibility: hidden;
+	}
+	
+} 
+.error-message {
+    color: red;
+    margin-top: 10px;
+}
+</style>
+</head>
+<body>
+<div class="loader">
+	<img src="static/loader.gif">
+ </div>
+
+
+<div class="wrapper">  
+		<span class="bg-animate"></span>
+		<span class="bg-animate2"></span>
+	<div class="form-box register">
+		<h2>Sign Up</h2>
+		<form method="post" action="" id="signup" enctype="multipart/form-data">
+			<div class="input-box">
+				<input type="text" id="username" name="username" autocomplete="off" >
+				<label>Username</label>
+				<img src="static/bxs-user.svg"> 
+			</div> 
+			<div class="input-box">
+				<input type="password" id="password" name="password" autocomplete="off" >
+				<label>Password</label>
+				<img src="static/bxs-lock-alt.svg">
+			</div> 
+			<div class="input-box">
+				<input type="password" id="password_confirmation" name="password_confirmation" autocomplete="off" >
+				<label>Confirm Password</label>
+				<img src="static/bxs-lock-alt.svg">
+			</div> 
+			<div id="image-container" style="padding: 5px 5px 25px; border-radius: 50px; color: #fff">
+					<input type="file" id="image" name="image" onchange="updateFileLabel()">
+			</div>
+			<div class="error-message"><?php echo isset($errorMessages) ? $errorMessages : ''; ?></div>
+			<button class="btn">Register</button>
+			<div class="logreg-link">
+				<p>Already have an account? <a href="Login.php" class="register-link">Login</a></p>
+			</div>
+		</form> 
+	</div>
+	<div class="info-text login">
+				<h2>Become Member!</h2>
+				<p>Create your account to experience the website we make. Buckle up cause hero we go!</p>
+	</div>
+</div>
+<script>
+var loader = document.querySelector(".loader")
+		
+		window.addEventListener("load",vanish);
+		
+		function vanish(){
+			loader.classList.add("nonev");
+		}
+		
+</script>
+</body>
+</html>
+<?php echo isset($errorMessages) ? '<div class="error-message">' . $errorMessages . '</div>' : ''; ?>

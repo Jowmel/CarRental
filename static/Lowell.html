@@ -1,0 +1,198 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<title>Developer Info</title>
+	
+	<style>
+	
+body{
+	overflow: hidden;	
+	background: linear-gradient(to right, navy,cyan,black);
+	background-repeat: no-repeat;
+	height: 100vh;
+	width: 100%;
+	
+}
+nav{
+	left: -5%;
+	width: 120%;
+	justify-content: space-around;
+	height: 80px;
+	line-height: 80px;
+	z-index: 111;
+	background: #3d535f;
+	font-family: tahoma;
+	position: fixed;
+}
+.logo{
+	display: flex;
+	font-size: 30px;
+	font-weight: 800;
+	color: white;
+	letter-spacing: 4px;
+	text-transform: uppercase;
+	margin-left: 5%;
+}
+b{
+	font-size: 4em;
+	color: cyan;
+}
+.wrapper{
+	width: 100%;
+	height: 100%;
+	padding: 0 10%;
+	overflow: hidden;
+	font-family: consolas;
+	font-weight: 800;
+}
+.wrapper::before{
+	position: absolute;
+	content: '';
+	height: 500px;
+	width: 500px;
+	border-radius: 50%;
+	left: -12%;
+	top: 32%;
+	background: linear-gradient(45deg,#7f00ff,violet);
+	animation: object1 6s linear infinite;
+}
+@keyframes object1{
+	50%{
+		top: 170px;
+		left: -150px;
+	}
+}
+.mes{
+	width: 50%;
+}
+.topline{
+	font-size: 35px;
+	letter-spacing: 5px;
+	color: #223311;
+	top: 25%;
+	position: absolute;
+}
+.topline::after{
+	position: absolute;
+	content: '';
+	height: 4px;
+	width: 45px;
+	bottom: 10px;
+	background: navy;
+}
+h1{
+	display: block;
+	font-size: 7em;
+	font-weight: 900;
+	color: #223311;
+	margin-top: 15%;
+	position: absolute;
+}
+.multiText{
+	background: linear-gradient(to right, black,blue);
+	text-transform: capitalize;
+	-webkit-background-clip: text;
+	-webkit-text-fill-color: transparent;
+}
+p{
+	position: absolute;
+	top: 60%;
+	left: 7%;
+	width: 90%;
+	font-size: 1.2em;
+	color: white;
+}
+.btn{
+	width: 100%;
+	position: absolute;
+	top: 80%;
+	left: 7%;
+}	
+.btn a{
+	text-decoration: none;
+	background: #3d535f;
+	color: #fff;
+	cursor: pointer;
+	font-weight: 400;
+	padding: 8px 14px;
+	margin: 40px 5px;
+	letter-spacing: 2px;
+	text-transform: capitalize;
+	box-shadow: 0px 15px 10px rgba(0,0,0,0.4);
+	transition: ease-out 0.3s;
+}
+.btn a:hover{
+	background: cyan;
+	color: black;
+	font-weight: 1000;
+}
+.me{
+	position: absolute;
+	left: 68%;
+	top: 45%;
+}
+.imgBox{
+	position: relative;
+	width: 100%;
+	height: 100%;
+}
+.imgBox img{
+	position: relative;
+	height: 100%;
+	width: calc(130% - 80px);
+	top: -100px;
+	right: 50px; 
+	animation: animateUser 4s linear infinite;
+}
+@keyframes animateUser{
+	50%{
+		right: 30px;
+		top: -90px;
+	}
+}
+.imgBox #splash{
+	position: absolute;
+	top: 60%;
+	left: 30%;
+	height: 150%;
+	transform: translate(-50%,-50%) rotate(-35deg);
+	width: 160%;
+	filter: saturate(200%);
+	animation: animate 4s linear infinite;
+}
+@keyframes animate{
+	50%{
+		right: 49px;
+		top: 300px;
+		width: 155%;
+	}
+}
+</style>
+</head>
+<body>
+	<nav>
+		<div class="logo">
+			Developer Info<b>.</b>
+		</div>
+	</nav>
+		
+		<div class="wrapper">
+			<div class="mes">
+				<span class="topline">Hello</span>
+				<h1>I'm <span class="multiText">Lowell</span></h1>
+				<p>Good Day, I am assigned as the front-end in this system. How's your experience?<br><br>Hope it brings user-friendly, the design I made.</p>
+				<div class="btn">
+					<a href="../About.php">Back</a>
+				</div>
+			</div>
+			
+			<div class="me">
+				<div class="imgBox">
+					<img src="splash.png" id="splash">
+					<img src="Dev1a.png">
+				</div>
+			</div>
+		</div>
+		 
+</body>
+</html>
